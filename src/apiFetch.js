@@ -5,19 +5,23 @@ export function apiFetch(path, options = {}) {
     const url = baseUrl + path;
     const token = localStorage.getItem("token");
 
-    options.headers = {
+    let headers = { ...options.headers };
 
-        ...options.headers,
-        Authorization: token ? "Bearer " + token : "", "Content-Type": "application/json"
+    if (token) {
+        headers["Authorization"] = "Bearer " + token;
+    }
 
-    };
+    if (options.body) {
+        headers["Content-Type"] = "application/json";
+    }
 
-    return fetch(url, options)
-        .then((res) => {
-            if (res.status === 401) {
-                localStorage.removeItem("token");
-                window.location.href = "/login";
-            }
-            return res.json();
-        });
+    options.headers = headers;
+
+    return fetch(url, options).then((res) => {
+        if (res.status === 401) {
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+        }
+        return res.json();
+    });
 }
